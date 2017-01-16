@@ -4,7 +4,7 @@
 
 #include "MyEepromAddresses.h"
 #include "MyConfigFlea.h"
-#include "WeatherStation.h"
+//#include "WeatherStation.h"
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -83,11 +83,11 @@ void MainWindow::guiToEeprom()
             mEepromContent[PositionConfigAdresseLcd] = (quint8)ui->adresseLcd->value();
             if (ui->typeLcd->currentText() == "20x4")
             {
-                mEepromContent[PositionConfigTypeLcd] = WeatherStation::LCD_2004;
+                //mEepromContent[PositionConfigTypeLcd] = WeatherStation::LCD_2004;
             }
             else
             {
-                mEepromContent[PositionConfigTypeLcd] = WeatherStation::LCD_1602;
+                //mEepromContent[PositionConfigTypeLcd] = WeatherStation::LCD_1602;
             }
         }
         else
