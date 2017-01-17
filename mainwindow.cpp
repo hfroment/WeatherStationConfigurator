@@ -71,6 +71,12 @@ void MainWindow::eepromToGui()
 
 void MainWindow::guiToEeprom()
 {
+    typedef enum
+    {
+        LCD_1602,
+        LCD_2004
+    }
+    eTypeLcd;
     if (mEepromContent.size() > TailleConfiguration)
     {
         mEepromContent[PositionVersionConfig] = 1;
@@ -83,11 +89,11 @@ void MainWindow::guiToEeprom()
             mEepromContent[PositionConfigAdresseLcd] = (quint8)ui->adresseLcd->value();
             if (ui->typeLcd->currentText() == "20x4")
             {
-                mEepromContent[PositionConfigTypeLcd] = WeatherStation::LCD_2004;
+                mEepromContent[PositionConfigTypeLcd] = LCD_2004;
             }
             else
             {
-                mEepromContent[PositionConfigTypeLcd] = WeatherStation::LCD_1602;
+                mEepromContent[PositionConfigTypeLcd] = LCD_1602;
             }
         }
         else
