@@ -1,6 +1,7 @@
 #include <QtSerialPort/QtSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 #include <QtDebug>
+#include <QMessageBox>
 
 #include "MyEepromAddresses.h"
 #include "MyConfigFlea.h"
@@ -111,4 +112,16 @@ void MainWindow::on_pushButton_3_clicked()
 {
     guiToEeprom();
     displayEeprom();
+}
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    if (QMessageBox::warning(this, tr("Weather configuration"),
+                                     tr("L'eeprom va être efacée.\n"
+                                        "Etes-vous sûr ?"),
+                                     QMessageBox::Ok | QMessageBox::Cancel,
+                                     QMessageBox::Cancel) == QMessageBox::Ok)
+    {
+        statusBar()->showMessage(trUtf8("Effacement..."));
+    }
 }
