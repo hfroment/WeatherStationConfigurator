@@ -33,8 +33,6 @@ void MainWindow::on_pushButton_2_clicked()
 {
     mEepromContent.clear();
     mSerialPort.write("r\n");
-    displayEeprom();
-    eepromToGui();
 }
 
 void MainWindow::displayEeprom()
