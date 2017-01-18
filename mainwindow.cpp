@@ -2,22 +2,24 @@
 #include <QtSerialPort/QSerialPortInfo>
 #include <QtDebug>
 #include <QMessageBox>
+#include <QSerialPort>
 
 #include "MyEepromAddresses.h"
 #include "MyConfigFlea.h"
-//#include "WeatherStation.h"
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    mSerialPort(*new QSerialPort(this))
 {
     ui->setupUi(this);
     QList<QSerialPortInfo>	ports = QSerialPortInfo::availablePorts();
     for (int i = 0; i < ports.size(); i++)
     {
+        //ui->portsPresents->addItem(ports.at(i).portName());
         ui->portsPresents->addItem(ports.at(i).systemLocation());
     }
 }
@@ -29,7 +31,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-    mEepromContent.fill(0xff, 512);
+    mEepromContent.clear();
+    mSerialPort.write("r\n");
     displayEeprom();
     eepromToGui();
 }
@@ -58,6 +61,14 @@ void MainWindow::eepromToGui()
             ui->LCD->setChecked(mEepromContent.at(PositionConfigAdresseLcd) != 0);
             ui->adresseLcd->setValue((quint8)mEepromContent.at(PositionConfigAdresseLcd));
             //ui->rtc->setChecked(mEepromContent.at(PositionConfigTypeLcd) != 0);
+            if (mEepromContent.at(PositionConfigTypeLcd) == LCD_2004)
+            {
+                ui->typeLcd->setCurrentText("20x4");
+            }
+            else
+            {
+                ui->typeLcd->setCurrentText("16x2");
+            }
         }
         else
         {
@@ -72,12 +83,6 @@ void MainWindow::eepromToGui()
 
 void MainWindow::guiToEeprom()
 {
-    typedef enum
-    {
-        LCD_1602,
-        LCD_2004
-    }
-    eTypeLcd;
     if (mEepromContent.size() > TailleConfiguration)
     {
         mEepromContent[PositionVersionConfig] = 1;
@@ -112,6 +117,21 @@ void MainWindow::on_pushButton_3_clicked()
 {
     guiToEeprom();
     displayEeprom();
+    if (mSerialPort.isOpen())
+    {
+        QString chaine = "W";
+        for (int i = 0; i < mEepromContent.size(); i++)
+        {
+            chaine += trUtf8(" %1").arg((quint8)mEepromContent.at(i));
+        }
+        chaine.append("\n");
+        qDebug() << chaine;
+        mSerialPort.write(chaine.toLatin1());
+    }
+    else
+    {
+        statusBar()->showMessage(trUtf8("Port %1 non ouvert").arg(ui->portsPresents->currentText()));
+    }
 }
 
 void MainWindow::on_pushButton_4_clicked()
@@ -124,4 +144,51 @@ void MainWindow::on_pushButton_4_clicked()
     {
         statusBar()->showMessage(trUtf8("Effacement..."));
     }
+}
+
+void MainWindow::on_connecter_clicked()
+{
+    if (!mSerialPort.isOpen())
+    {
+        mSerialPort.setPortName(ui->portsPresents->currentText());
+        if (mSerialPort.open(QIODevice::ReadWrite))
+        {
+            statusBar()->showMessage(trUtf8("%1 ouvert").arg(ui->portsPresents->currentText()));
+            mSerialPort.setBaudRate(115200);
+            connect(&mSerialPort, SIGNAL(readyRead()), this, SLOT(readyReadSlot()));
+        }
+        else
+        {
+            statusBar()->showMessage(trUtf8("Impossible d'ouvrir %1").arg(ui->portsPresents->currentText()));
+        }
+    }
+}
+
+void MainWindow::on_deconnecter_clicked()
+{
+    if (mSerialPort.isOpen())
+    {
+        mSerialPort.close();
+        statusBar()->showMessage(trUtf8("%1 fermé").arg(ui->portsPresents->currentText()));
+    }
+}
+
+// This slot is connected to QSerialPort::readyRead()
+void MainWindow::readyReadSlot()
+{
+    while (!mSerialPort.atEnd())
+    {
+        QByteArray data = mSerialPort.readAll();
+        qDebug() << data;
+        if (data.at(0) == 'C')
+        {
+            QStringList contenu = QString(data).split(QChar(' '));
+            for (int i = 1; i < contenu.size(); i++)
+            {
+                mEepromContent.append(contenu.at(i).toUShort());
+            }
+        }
+    }
+    displayEeprom();
+    eepromToGui();
 }

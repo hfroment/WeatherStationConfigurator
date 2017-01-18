@@ -7,6 +7,8 @@ namespace Ui {
 class MainWindow;
 }
 
+class QSerialPort;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -22,7 +24,20 @@ private slots:
 
     void on_pushButton_4_clicked();
 
+    void on_connecter_clicked();
+
+    void on_deconnecter_clicked();
+
+    void readyReadSlot();
+
 private:
+    typedef enum
+    {
+        LCD_1602,
+        LCD_2004
+    }
+    eTypeLcd;
+
     Ui::MainWindow *ui;
 
     QByteArray mEepromContent;
@@ -30,6 +45,8 @@ private:
     void displayEeprom();
     void eepromToGui();
     void guiToEeprom();
+
+    QSerialPort& mSerialPort;
 };
 
 #endif // MAINWINDOW_H
