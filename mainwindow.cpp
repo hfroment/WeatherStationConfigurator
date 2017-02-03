@@ -50,7 +50,7 @@ void MainWindow::displayEeprom()
 
 void MainWindow::eepromToGui()
 {
-    if (mEepromContent.size() > TailleConfiguration)
+    if (mEepromContent.size() >= TailleConfiguration)
     {
         if (mEepromContent.at(PositionVersionConfig) == 1)
         {
@@ -73,6 +73,11 @@ void MainWindow::eepromToGui()
         else
         {
             statusBar()->showMessage(trUtf8("Version %1 non supportée").arg((quint8)mEepromContent.at(PositionVersionConfig)));
+        }
+        if (mEepromContent.size() >= TailleConfiguration + 1)
+        {
+            // NodeId
+            ui->nodeId->setValue(mEepromContent.at(TailleConfiguration));
         }
     }
     else
@@ -185,7 +190,12 @@ void MainWindow::readyReadSlot()
             QStringList contenu = QString(data).split(QChar(' '));
             for (int i = 1; i < contenu.size(); i++)
             {
-                mEepromContent.append(contenu.at(i).toUShort());
+                bool ok;
+                quint8 val = contenu.at(i).toUShort(&ok);
+                if (ok)
+                {
+                    mEepromContent.append(val);
+                }
             }
         }
     }
