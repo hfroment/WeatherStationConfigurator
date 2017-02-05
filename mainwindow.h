@@ -30,6 +30,10 @@ private slots:
 
     void readyReadSlot();
 
+    void on_pushButton_5_clicked();
+
+    void on_pushButton_clicked();
+
 private:
     typedef enum
     {

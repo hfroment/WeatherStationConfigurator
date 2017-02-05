@@ -200,3 +200,13 @@ void MainWindow::readyReadSlot()
     displayEeprom();
     eepromToGui();
 }
+
+void MainWindow::on_pushButton_5_clicked()
+{
+
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+
+}
