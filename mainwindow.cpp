@@ -54,7 +54,6 @@ void MainWindow::eepromToGui()
         {
             ui->rtc->setChecked(mEepromContent.at(PositionConfigRtc) != 0);
             ui->temperature->setChecked(mEepromContent.at(PositionConfigTemperature) != 0);
-            ui->humidite->setChecked(mEepromContent.at(PositionConfigHumidity) != 0);
             ui->pression->setChecked(mEepromContent.at(PositionConfigPressure) != 0);
             ui->LCD->setChecked(mEepromContent.at(PositionConfigAdresseLcd) != 0);
             ui->adresseLcd->setValue((quint8)mEepromContent.at(PositionConfigAdresseLcd));
@@ -63,9 +62,32 @@ void MainWindow::eepromToGui()
             {
                 ui->typeLcd->setCurrentText("20x4");
             }
+            else if (mEepromContent.at(PositionConfigTypeLcd) == LCD_SSD1306)
+            {
+                ui->typeLcd->setCurrentText("SSD1306");
+            }
             else
             {
                 ui->typeLcd->setCurrentText("16x2");
+            }
+            ui->humidite->setChecked(mEepromContent.at(PositionConfigHumidity) != 0);
+            switch (mEepromContent.at(PositionConfigHumidity))
+            {
+            case DHT11:
+                ui->typeLcd->setCurrentText("DHT11");
+                break;
+            case DHT12:
+                ui->typeLcd->setCurrentText("DHT12");
+                break;
+            case DHT22:
+                ui->typeLcd->setCurrentText("DHT22");
+                break;
+            case DHT33:
+                ui->typeLcd->setCurrentText("DHT33");
+                break;
+            case DHT44:
+                ui->typeLcd->setCurrentText("DHT44");
+                break;
             }
         }
         else
@@ -91,7 +113,6 @@ void MainWindow::guiToEeprom()
         mEepromContent[PositionVersionConfig] = 1;
         mEepromContent[PositionConfigRtc] = (ui->rtc->isChecked() ? 1 : 0);
         mEepromContent[PositionConfigTemperature] = (ui->temperature->isChecked() ? 1 : 0);
-        mEepromContent[PositionConfigHumidity] = (ui->humidite->isChecked() ? 1 : 0);
         mEepromContent[PositionConfigPressure] = (ui->pression->isChecked() ? 1 : 0);
         if (ui->LCD->isChecked())
         {
@@ -99,6 +120,12 @@ void MainWindow::guiToEeprom()
             if (ui->typeLcd->currentText() == "20x4")
             {
                 mEepromContent[PositionConfigTypeLcd] = LCD_2004;
+            }
+            else if (ui->typeLcd->currentText() == "SSD1306")
+            {
+                mEepromContent[PositionConfigTypeLcd] = LCD_SSD1306;
+                // Adresse != 0 pour activation
+                mEepromContent[PositionConfigAdresseLcd] = 1;
             }
             else
             {
@@ -108,6 +135,33 @@ void MainWindow::guiToEeprom()
         else
         {
             mEepromContent[PositionConfigAdresseLcd] = 0;
+        }
+        if (ui->humidite->isChecked())
+        {
+            if (ui->typeLcd->currentText() == "DHT11")
+            {
+                mEepromContent[PositionConfigHumidity] = DHT11;
+            }
+            else if (ui->typeLcd->currentText() == "DHT12")
+            {
+                mEepromContent[PositionConfigHumidity] = DHT12;
+            }
+            else if (ui->typeLcd->currentText() == "DHT22")
+            {
+                mEepromContent[PositionConfigHumidity] = DHT22;
+            }
+            else if (ui->typeLcd->currentText() == "DHT33")
+            {
+                mEepromContent[PositionConfigHumidity] = DHT33;
+            }
+            else if (ui->typeLcd->currentText() == "DHT44")
+            {
+                mEepromContent[PositionConfigHumidity] = DHT44;
+            }
+        }
+        else
+        {
+            mEepromContent[PositionConfigHumidity] = 0;
         }
     }
     else

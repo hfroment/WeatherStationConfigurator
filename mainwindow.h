@@ -38,9 +38,18 @@ private:
     typedef enum
     {
         LCD_1602,
-        LCD_2004
+        LCD_2004,
+        LCD_SSD1306
     }
     eTypeLcd;
+
+    enum dhtmodels {
+        DHT11 = 1,
+        DHT22,
+        DHT33,
+        DHT44,
+        DHT12,
+    };
 
     Ui::MainWindow *ui;
 
